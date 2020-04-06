@@ -1,0 +1,378 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+buildscript {
+    ext {
+        grettyVersion = '2.3.1'
+        jettyVersion = '9.4.14.v20181114'
+        nebulaReleaseVersion = '13.0.0'
+        gradleGitVersion = '3.1.1'
+        gradleJrebelVersion = '1.1.9'
+        kotlinVersion = '1.3.61'
+        spotBugsPluginVersion = '2.0.0'
+        detektVersion = '1.0.1'
+        springBootVersion = '2.2.5.RELEASE'
+        gradleUtilPluginsVersion = '0.1.0-RELEASE'
+    }
+
+    dependencies {
+        classpath "gradle.plugin.org.gretty:gretty:$grettyVersion"
+        classpath "org.eclipse.jetty:jetty-jndi:$jettyVersion"
+        classpath "org.ajoberstar.grgit:grgit-gradle:$gradleGitVersion"
+        classpath "gradle.plugin.org.zeroturnaround:gradle-jrebel-plugin:$gradleJrebelVersion"
+        classpath "com.netflix.nebula:nebula-release-plugin:$nebulaReleaseVersion"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
+        classpath "gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:$spotBugsPluginVersion"
+        classpath "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:$detektVersion"
+        classpath "io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion"
+        classpath "gradle.plugin.com.github.viswaramamoorthy:gradle-util-plugins:$gradleUtilPluginsVersion"
+    }
+}
+
+apply plugin: "nebula.release"
+apply plugin: "org.ajoberstar.grgit"
+
+allprojects {
+    defaultTasks 'clean', 'check', 'assemble'
+
+    group projectGroup
+
+    ext {
+        projectCurrentDate = currentDate()
+
+        checkstyleVersion = '8.30'
+        spotBugsVersion = '3.1.12'
+        liquibasePluginVersion = '2.0.1'
+
+        javaMailVersion = '1.6.1'
+        ojdbcVersion = '12.2.0.1'
+        pgsqlVersion = '42.2.0'
+        junitVersion = '5.6.0'
+        junitPlatformVersion = '1.6.0'
+        assertjVersion = '3.13.2'
+        mockRunnerVersion = '2.0.1'
+
+        springVersion = '5.2.4.RELEASE'
+        springSecurityVersion = '5.3.0.RELEASE'
+        springSecurityKerberosVersion = '1.0.1.RELEASE'
+
+        camelVersion = '2.24.2'
+        activeMqCamelVersion = '5.15.10'
+        quartzVersion = '2.3.1'
+        ibmMqClientVersion = '9.1.0.0'
+
+        mybatisVersion = '3.5.0'
+        mybatisSpringVersion = '2.0.0'
+        liquibaseVersion = '3.8.7'
+        liquibaseSlf4jVersion = '2.0.0'
+        jooqVersion = '3.11.10'
+
+        slf4jApiVersion = '1.7.28'
+        logbackClassicVersion = '1.3.0-alpha5'
+        log4jVersion = '1.2.17'
+
+        zkVersion = '8.6.3'
+        zkSpreadsheetVersion = '3.9.4'
+        zkSpringVersion = '4.0.0'
+        zkSpringBootVersion = '1.0.4'
+        zkPivottableVersion = '2.1.0'
+
+        commonsLang3Version = '3.9'
+        commonsCollections4Version = '4.4'
+        commonsCodecVersion = '1.13'
+        commonsIoVersion = '2.6'
+        commonsPoolVesion = '2.7.0'
+        commonsTextVersion = '1.8'
+        commonsValidatorVersion = '1.4.0'
+        httpCoreVersion = '4.4.12'
+        commonsCryptoVersion = '1.0.0'
+
+        jacksonVersion = '2.10.3'
+        hazelcastVersion = '3.12.6'
+        guavaVersion = '23.0'
+        validationApiVersion = '2.0.1.Final'
+        j2htmlVersion = '1.4.0'
+        xercesVersion = '2.11.0'
+        cxfVersion = '3.3.3'
+        jaxwsRiVersion = '2.3.2'
+        reflectionsVersion = '0.9.9'
+        dbfReaderVersion = '0.3.0'
+        groupDocsViewerVersion = '19.11'
+        templaterVersion = '4.3.0'
+        tikaVersion = '1.18' //TODO The older version is set due the newest poi >= 4.0.0 is uncompatible with zk spreadsheet
+        basexVersion = '9.2.4'
+        camundaVersion = '7.12.0'
+        camundaReactorVersion = '2.1.1'
+
+        moxcelParserVersion = '1.0.0'
+
+        resourcesFiltering = {
+            ['**/*config.properties', '**/changelog.txt', '**/logback*.xml'].each {
+                filesMatching(it) {
+                    filter ReplaceTokens, tokens: [
+                            "projectVersion": project.version.toString(),
+                            "currentDate"   : projectCurrentDate,
+                            "projectName"   : rootProject.name,
+                            "buildBranch"   : buildBranch
+                    ]
+                }
+            }
+        }
+
+        checkProfile = {
+            if (profile == null || profile.isEmpty())
+                throw new IllegalArgumentException("'profile' argument must not be null. Please provide '-Pprofile=' argument value")
+        }
+
+        testConfig = { testLogging ->
+            failFast = true
+
+            systemProperties = System.properties
+            systemProperties.dbUrl = dbUrl
+            systemProperties.dbUsername = dbUsername
+            systemProperties.dbPassword = dbPassword
+
+            systemProperties.hazelcastPort = hazelcastPort
+
+            systemProperties.basexPort = basexPort
+
+            testLogging.showExceptions = true
+            testLogging.showStackTraces = true
+            testLogging.showCauses = true
+            testLogging.showStandardStreams = true
+        }
+
+        applyProfileBuildConfig = { currProject ->
+            File buildConfig = currProject.file("build.${project.getProperty('profile')}.gradle")
+            if (buildConfig.exists()) {
+                apply from: buildConfig
+            }
+        }
+    }
+
+    applyProfileBuildConfig(rootProject)
+
+    apply plugin: "java"
+    apply plugin: "checkstyle"
+    apply plugin: "io.gitlab.arturbosch.detekt"
+    apply plugin: "com.github.spotbugs"
+    apply plugin: "org.jetbrains.kotlin.jvm"
+    apply plugin: "org.jetbrains.kotlin.plugin.spring"
+
+    dbUrl = dbUrl ?: System.properties.dbUrl
+    dbUsername = dbUsername ?: System.properties.dbUsername
+    dbPassword = dbPassword ?: System.properties.dbPassword
+
+    hazelcastPort = System.properties.hazelcastPort ?: hazelcastPort
+
+    basexPort = System.properties.basexPort ?: basexPort
+
+    customJvmArgs = System.properties.getProperty("org.gradle.jvmargs") ?: ""
+
+    configurations {
+        testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+        testCompile.exclude group: 'log4j', module: 'log4j'
+        testCompile.exclude group: 'xerces', module: 'xercesImpl'
+        testCompile.exclude group: 'junit', module: 'junit'
+    }
+
+    tasks.withType(JavaCompile) {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    tasks.withType(Jar) {
+        manifest {
+            attributes(
+                    "Build-Time": projectCurrentDate,
+                    "Implementation-Vendor": "Master-Domino",
+                    "Implementation-Vendor-Id": project.group,
+                    "Implementation-Title": project.name,
+                    "Implementation-Version": project.version
+            )
+        }
+    }
+
+    tasks.withType(com.github.spotbugs.SpotBugsTask) {
+        reports {
+            xml.enabled false
+            html.enabled true
+        }
+    }
+
+    dependencies {
+        testCompile(
+                "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion",
+                "org.junit.jupiter:junit-jupiter-api:$junitVersion",
+                "org.junit.jupiter:junit-jupiter-params:$junitVersion",
+                "org.springframework:spring-test:$springVersion",
+                "org.springframework.security:spring-security-test:$springSecurityVersion",
+                "com.oracle.ojdbc:ojdbc8:$ojdbcVersion",
+                "org.assertj:assertj-core:$assertjVersion",
+                "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+                "com.google.guava:guava:$guavaVersion",
+                "commons-io:commons-io:$commonsIoVersion",
+                "javax.mail:javax.mail-api:$javaMailVersion",
+                "javax.validation:validation-api:$validationApiVersion",
+                "com.mockrunner:mockrunner-jms:$mockRunnerVersion"
+        )
+
+        testRuntime(
+                "org.junit.jupiter:junit-jupiter-engine:$junitVersion",
+                "org.junit.platform:junit-platform-engine:$junitPlatformVersion",
+                "org.junit.platform:junit-platform-launcher:$junitPlatformVersion",
+                "org.junit.platform:junit-platform-commons:$junitPlatformVersion"
+        )
+    }
+
+    javadoc {
+        title = "Central Rating System $project.version $projectCurrentDate"
+    }
+
+    compileKotlin {
+        kotlinOptions {
+            jvmTarget = JavaVersion.VERSION_1_8
+        }
+    }
+
+    compileTestKotlin {
+        kotlinOptions {
+            jvmTarget = JavaVersion.VERSION_1_8
+        }
+    }
+
+    checkstyle {
+        toolVersion = checkstyleVersion
+        configFile = new File(rootDir, "md_checkstyle.xml")
+        configDir = file("$rootProject.projectDir")
+    }
+
+    detekt {
+        toolVersion = detektVersion
+        parallel = true
+        disableDefaultRuleSets = false
+        config = files(rootProject.projectDir.path + "/detekt-config.yml")
+        reports {
+            xml {
+                enabled = false
+            }
+            html {
+                enabled = true
+            }
+        }
+    }
+
+    spotbugs {
+        toolVersion = spotBugsVersion
+        sourceSets = [sourceSets.main]
+    }
+
+    processResources resourcesFiltering
+    processTestResources resourcesFiltering
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        archiveClassifier = 'sources'
+        from sourceSets.main.allSource
+        from 'src/main/webapp'
+    }
+}
+
+subprojects {
+    apply plugin: "org.zeroturnaround.gradle.jrebel"
+
+    jar.dependsOn(generateRebel)
+
+    tasks.withType(Test) {
+        testConfig(testLogging)
+
+        systemProperties = System.properties
+        if (customJvmArgs != null && !customJvmArgs.isEmpty()) {
+            jvmArgs customJvmArgs.split(' ')
+        }
+
+        useJUnitPlatform() {
+            excludeTags 'stressTests'
+        }
+    }
+
+    task stressTest(type: Test) {
+        testConfig(testLogging)
+
+        systemProperties = System.properties
+        if (customJvmArgs != null && !customJvmArgs.isEmpty()) {
+            jvmArgs customJvmArgs.split(' ')
+        }
+        useJUnitPlatform() {
+            includeTags 'stressTests'
+        }
+    }
+}
+
+tasks.check.dependsOn 'detekt'
+
+task defineVersion {
+    enabled = !project.version.toString().contains("SNAPSHOT")
+    doLast {
+        ant.propertyfile(file: "gradle.properties") {
+            entry(key: "projectVersion", value: project.version.toString())
+        }
+
+        grgit = org.ajoberstar.grgit.Grgit.open()
+        grgit.add(patterns: ['gradle.properties'], update: true)
+        def res = grgit.commit(message: 'Version ' + project.version.toString() + ' #skipchecks')
+        grgit.push()
+    }
+}
+
+//tasks.release.dependsOn 'defineVersion'
+
+task update {
+    enabled = false
+}
+
+gradle.startParameter.getTaskNames().each { task ->
+    if ((task.equals("test") || task.equals("update"))
+            && gradle.startParameter.getProjectDir().equals(rootProject.getProjectDir()))
+        throw new IllegalAccessException("Running task ':${task}' from root project is forbidden")
+}
+
+/**
+ * Returns all dependent projects.
+ * @param project gradle project
+ * @param dependentProjects dependent projects
+ */
+void allDependentProjects(Project project, Set dependentProjects) {
+    def projectDependencies = project.configurations.compile.getAllDependencies().withType(ProjectDependency)
+    def projects = projectDependencies*.dependencyProject
+    if (projects.size() > 0) {
+        projects.each {
+            allDependentProjects(it, dependentProjects)
+            dependentProjects.add(it)
+        }
+    }
+}
+
+/**
+ * Executes task on dependent projects.
+ * @param project gradle project
+ * @param task task name
+ * @param includeTestScope include test scopes
+ */
+void executeTask(Project project, String task) {
+    def dependentProjects = new LinkedHashSet()
+    allDependentProjects(project, dependentProjects)
+
+    println ">>> Affected projects by task ':${task}': \n ${dependentProjects}"
+
+    dependentProjects.each { dependentProject ->
+        def targetedTask = dependentProject.tasks.findByName(task)
+        if (targetedTask != null) {
+            targetedTask.actions.each {
+                println ">>> Start to execute '${dependentProject.name}:${targetedTask.name}'"
+                it.execute(targetedTask)
+                println ">>> ':${dependentProject.name}:${targetedTask.name}' completed"
+            }
+        }
+    }
+}

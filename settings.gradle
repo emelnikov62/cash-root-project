@@ -1,0 +1,5 @@
+rootProject.name = 'cash-root-project'
+include 'cash-core'
+include 'cash-web'
+include 'cash-web-core'
+

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/aop
+                           http://www.springframework.org/schema/aop/spring-aop.xsd
+                           http://www.springframework.org/schema/task
+                           http://www.springframework.org/schema/task/spring-task.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <!-- TODO: read pool-size from settings -->
+    <!--<task:executor id="asyncExecutor" pool-size="8" keep-alive="3" />
+    <task:annotation-driven executor="asyncExecutor"/>-->
+    <task:annotation-driven/>
+
+    <context:component-scan base-package="ru.cash">
+        <context:exclude-filter type="regex" expression="ru\.cash\.extension\..*\.config\..*"/>
+        <context:exclude-filter type="regex" expression="ru\.cash\.config\..*"/>
+        <context:exclude-filter type="regex" expression="ru\.cash\.web\..*"/>
+    </context:component-scan>
+
+    <aop:aspectj-autoproxy/>
+
+    <util:constant id="MODE_INHERITABLETHREADLOCAL" static-field="org.springframework.security.core.context.SecurityContextHolder.MODE_INHERITABLETHREADLOCAL"/>
+    <bean class="org.springframework.beans.factory.config.MethodInvokingBean"
+          p:targetClass="org.springframework.security.core.context.SecurityContextHolder"
+          p:targetMethod="setStrategyName"
+          p:arguments="#{@MODE_INHERITABLETHREADLOCAL}" />
+
+    <bean id="config" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="locations">
+            <list>
+                <value>classpath:config.properties</value>
+            </list>
+        </property>
+        <property name="fileEncoding" value="UTF-8"/>
+    </bean>
+
+</beans>

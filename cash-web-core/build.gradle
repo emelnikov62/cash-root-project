@@ -1,0 +1,27 @@
+dependencies {
+    compile(
+            project(':cash-core'),
+
+            "org.springframework:spring-web:$springVersion",
+            "org.springframework.security:spring-security-web:$springSecurityVersion",
+            "org.springframework.security:spring-security-config:$springSecurityVersion",
+            "org.springframework.security:spring-security-taglibs:$springSecurityVersion",
+
+            "org.zkoss.zk:zkplus:$zkVersion",
+            "org.zkoss.zk:zkmax:$zkVersion",
+            "org.zkoss.zk:zuti:$zkVersion",
+
+            "org.zkoss.theme:breeze:$zkVersion",
+
+            "org.zkoss.zk:zkspring-core:$zkSpringVersion",
+            "org.zkoss.zk:zkspring-security:$zkSpringVersion",
+            "org.zkoss.zss:zssex:$zkSpreadsheetVersion",
+            "org.zkoss.zss:zsspdf:$zkSpreadsheetVersion",
+            "org.zkoss.pivot:pivottable:$zkPivottableVersion",
+
+            "com.j2html:j2html:$j2htmlVersion",
+            "org.jamel.dbf:dbf-reader:$dbfReaderVersion",
+            "xerces:xercesImpl:$xercesVersion",
+            "org.apache.httpcomponents:httpcore:$httpCoreVersion"
+    )
+}

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<zk>
+    <system-config>
+        <label-location>/layout.properties</label-location>
+
+        <disable-zscript>true</disable-zscript>
+
+        <id-generator-class>ru.cash.web.core.util.IdGeneratorImpl</id-generator-class>
+        <library-property>
+            <name>org.zkoss.zk.ui.uuidRecycle.disabled</name>
+            <value>true</value>
+        </library-property>
+    </system-config>
+    <session-config>
+        <device-type>ajax</device-type>
+        <timeout-uri></timeout-uri>
+    </session-config>
+    <system-config>
+        <max-upload-size>102400</max-upload-size>
+    </system-config>
+    <error-page>
+        <exception-type>java.lang.Throwable</exception-type>
+        <location>/pages/exception.zul</location>
+    </error-page>
+    <device-config>
+        <device-type>ajax</device-type>
+        <!-- Custom progressbox -->
+        <embed>
+            <![CDATA[<script type="text/javascript">
+                zUtl.progressbox = function(id, msg, mask, icon) {
+                    var html = '<div id="'+id+'"><div id="'+id + '-t" class="z-loading"><div class="z-loading-indicator">'
+                        +'<span class="z-loading-icon"></span><span class="z-loading-icon"></span><span class="z-loading-icon"></span> '
+                        +msg+'</div></div>';
+                    jq(document.body).append(html + '</div>');
+                }
+            </script>]]>
+        </embed>
+    </device-config>
+    <library-property>
+        <name>org.zkoss.theme.preferred</name>
+        <value>breeze</value> <!-- or silvertail, atlantic, deepsea, gardensalad etc. -->
+    </library-property>
+    <library-property>
+        <name>org.zkoss.zul.nativebar</name>
+        <value>false</value>
+    </library-property>
+    <library-property>
+        <name>org.zkoss.pivot.pivotModel.rowOpenOnInit</name>
+        <value>true</value>
+    </library-property>
+</zk>

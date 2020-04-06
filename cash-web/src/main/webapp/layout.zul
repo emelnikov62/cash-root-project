@@ -1,0 +1,9 @@
+<?page docType="html" contentType="text/html;charset=UTF-8" language="xul/html" ?>
+<?meta http-equiv="Content-Type" content="text/html; charset=UTF-8" ?>
+<zk>
+    <borderlayout sclass="vertical page-home" apply="org.zkoss.bind.BindComposer" vflex="1">
+        <center sclass="no-borders transparent-background">
+            <label value="Welcome" />
+        </center>
+    </borderlayout>
+</zk>

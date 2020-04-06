@@ -1,0 +1,61 @@
+apply plugin: "war"
+
+configurations {
+    compile.exclude group: 'commons-logging', module: 'commons-logging'
+    compile.exclude group: 'javax.servlet', module: 'servlet-api'
+    compile.exclude group: 'org.slf4j', module: 'slf4j-jdk14'
+    compile.exclude group: 'junit', module: 'junit'
+    compile.exclude group: 'javax.xml.bind', module: 'jaxb-api'
+}
+
+dependencies {
+    compileClasspath(
+            "org.springframework.boot:spring-boot:$springBootVersion",
+            "org.springframework.boot:spring-boot-autoconfigure:$springBootVersion"
+    )
+
+    compile(
+            project(':cash-core'),
+            project(':cash-web-core')
+    )
+}
+
+applyProfileBuildConfig(project)
+
+war.dependsOn(generateRebel)
+war {
+    exclude('**/jetty9-env.xml')
+    exclude('**/jetty9-config.xml')
+    exclude('**/override-web.xml')
+}
+
+task update {
+    doLast {
+        checkProfile()
+        executeTask(project, it.name)
+    }
+}
+
+task test(type: Test, overwrite: true) {
+    doLast {
+        checkProfile()
+        executeTask(project, it.name)
+    }
+}
+
+task clean(type: Delete, overwrite: true) {
+    doLast {
+        executeTask(project, it.name)
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes, overwrite: true) {
+    archiveClassifier = 'sources'
+    from sourceSets.main.allSource
+    from 'src/main/webapp'
+
+    doLast {
+        executeTask(project, it.name)
+    }
+}
+

@@ -1,0 +1,87 @@
+buildscript {
+    dependencies {
+        classpath "org.liquibase:liquibase-gradle-plugin:$liquibasePluginVersion"
+    }
+}
+
+apply plugin: "org.liquibase.gradle"
+
+liquibase {
+    activities {
+        main {
+            changeLogFile "${sourceSets.main.resources.srcDirs[0]}/META-INF/db/cash-changelog.xml"
+            url "$dbUrl"
+            username "$dbUsername"
+            password "$dbPassword"
+        }
+    }
+}
+
+dependencies {
+    liquibaseRuntime(
+            "com.oracle.ojdbc:ojdbc8:$ojdbcVersion",
+            "org.postgresql:postgresql:$pgsqlVersion",
+            "org.liquibase:liquibase-core:$liquibaseVersion"
+    )
+
+    compile(
+            "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion",
+            "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion",
+
+            "org.springframework.boot:spring-boot:$springBootVersion",
+            "org.springframework:spring-context:$springVersion",
+            "org.springframework:spring-context-support:$springVersion",
+            "org.springframework:spring-jdbc:$springVersion",
+            "org.springframework:spring-aspects:$springVersion",
+            "org.springframework:spring-jms:$springVersion",
+            "org.springframework:spring-messaging:$springVersion",
+            "org.springframework.security:spring-security-core:$springSecurityVersion",
+            "org.springframework.security:spring-security-config:$springSecurityVersion",
+
+            "org.apache.camel:camel-spring:$camelVersion",
+            "org.apache.camel:camel-core:$camelVersion",
+            "org.apache.camel:camel-http:$camelVersion",
+            "org.apache.camel:camel-jms:$camelVersion",
+            "org.apache.camel:camel-jackson:$camelVersion",
+            "org.apache.camel:camel-quartz2:$camelVersion",
+            "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion",
+            "org.apache.activemq:activemq-camel:$activeMqCamelVersion",
+
+            "org.liquibase:liquibase-core:$liquibaseVersion",
+            "org.mybatis:mybatis:$mybatisVersion",
+            "org.mybatis:mybatis-spring:$mybatisSpringVersion",
+
+            "org.slf4j:slf4j-api:$slf4jApiVersion",
+            "org.slf4j:log4j-over-slf4j:$slf4jApiVersion",
+            "ch.qos.logback:logback-classic:$logbackClassicVersion",
+            "log4j:log4j:$log4jVersion",
+            "com.mattbertolini:liquibase-slf4j:$liquibaseSlf4jVersion",
+
+            "org.apache.commons:commons-lang3:$commonsLang3Version",
+            "commons-io:commons-io:$commonsIoVersion",
+            "commons-codec:commons-codec:$commonsCodecVersion",
+            "org.apache.commons:commons-text:$commonsTextVersion",
+            "org.apache.commons:commons-crypto:$commonsCryptoVersion",
+
+            "com.hazelcast:hazelcast-all:$hazelcastVersion",
+            "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+            "org.apache.commons:commons-collections4:$commonsCollections4Version",
+            "org.apache.commons:commons-pool2:$commonsPoolVesion",
+            "hr.ngs.templater:templater:$templaterVersion",
+            "com.groupdocs:groupdocs-viewer:$groupDocsViewerVersion",
+
+            "org.quartz-scheduler:quartz:$quartzVersion",
+            "org.quartz-scheduler:quartz-jobs:$quartzVersion",
+
+            "com.github.spotbugs:spotbugs-annotations:$spotBugsVersion",
+            "com.oracle.ojdbc:ojdbc8:$ojdbcVersion",
+            "org.postgresql:postgresql:$pgsqlVersion",
+            "org.basex:basex:$basexVersion",
+            "org.apache.tika:tika-parsers:$tikaVersion",
+            "org.reflections:reflections:$reflectionsVersion"
+    )
+
+    compileOnly(
+            "javax.validation:validation-api:$validationApiVersion"
+    )
+}

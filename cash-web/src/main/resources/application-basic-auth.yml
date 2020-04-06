@@ -1,0 +1,4 @@
+spring:
+  security:
+    user:
+      file-based-repository-location: "users.properties"

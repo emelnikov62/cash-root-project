@@ -1,0 +1,17 @@
+autoCorrect: true
+failFast: true
+style:
+  MandatoryBracesIfStatements:
+    active: false
+  MaxLineLength:
+    active: true
+    maxLineLength: 150
+  WildcardImport:
+    active: false
+comments:
+  CommentOverPrivateFunction:
+    active: false
+exceptions:
+  TooGenericExceptionCaught:
+    active: false
+

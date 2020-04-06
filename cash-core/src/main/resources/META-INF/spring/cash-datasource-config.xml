@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager" primary="true">
+        <property name="dataSource" ref="cashDataSource" />
+    </bean>
+    <tx:annotation-driven transaction-manager="transactionManager" />
+
+    <bean id="cashLiquibase" class="ru.cash.core.util.MultipleChangeLogSupport">
+        <property name="dataSource" ref="cashDataSource" />
+        <property name="changeLogs" value="classpath:META-INF/db/cash-changelog.xml, classpath:META-INF/db/cash-core-*-changelog.xml, classpath*:META-INF/db/cash-*-changelog.xml" />
+    </bean>
+
+    <bean id="cashSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean" depends-on="cashLiquibase">
+        <property name="dataSource" ref="cashDataSource" />
+        <property name="configLocation" value="classpath:META-INF/spring/cash-mybatis-config.xml" />
+        <property name="typeAliasesPackage" value="ru.cash.domain" />
+        <property name="mapperLocations" value="classpath:ru/cash/core/dao/**/*.xml" />
+    </bean>
+
+    <bean id="cashMapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="ru.cash.dao" />
+        <property name="sqlSessionFactoryBeanName" value="cashSqlSessionFactory" />
+    </bean>
+
+    <bean id="crsSqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="cashSqlSessionFactory" />
+    </bean>
+</beans>
